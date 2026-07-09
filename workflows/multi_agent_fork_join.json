@@ -1,0 +1,45 @@
+{
+  "name": "multi_agent_trip_planner",
+  "version": 1,
+  "description": "FORK_JOIN example: a flights branch and a hotels branch run in parallel, then results are combined. Mirrors ai/examples/27-a2a-multi-agent.json from conductor-oss/conductor.",
+  "tasks": [
+    {
+      "name": "search_options",
+      "taskReferenceName": "search_options",
+      "type": "FORK_JOIN",
+      "forkTasks": [
+        [
+          {
+            "name": "book_flight",
+            "taskReferenceName": "book_flight",
+            "type": "CALL_MCP_TOOL",
+            "input": {
+              "tool": "get_flight_options",
+              "arguments": {"from": "$(input['from'])", "to": "$(input['to'])"}
+            }
+          }
+        ],
+        [
+          {
+            "name": "book_hotel",
+            "taskReferenceName": "book_hotel",
+            "type": "CALL_MCP_TOOL",
+            "input": {
+              "tool": "get_hotel_options",
+              "arguments": {"city": "$(input['to'])"}
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "combine_results",
+      "taskReferenceName": "combine_results",
+      "type": "SIMPLE",
+      "input": {}
+    }
+  ],
+  "outputParameters": {
+    "summary": "tasks['combine_results']['output']['summary']"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "think_act_observe_demo",
+  "version": 1,
+  "description": "The flagship demo: a DO_WHILE agent loop (think -> act-or-finish -> tool call -> repeat), matching section 8-9 of the design reference in docs/references/. LLM_CHAT_COMPLETE is driven by MockLLMProvider replaying input.scriptedPlan.",
+  "tasks": [
+    {
+      "name": "agent_loop",
+      "taskReferenceName": "agent_loop",
+      "type": "DO_WHILE",
+      "maxIterations": 10,
+      "loopCondition": "tasks['think']['output']['done'] == False",
+      "loopOver": [
+        {
+          "name": "think",
+          "taskReferenceName": "think",
+          "type": "LLM_CHAT_COMPLETE",
+          "input": {}
+        },
+        {
+          "name": "act_or_finish",
+          "taskReferenceName": "act_or_finish",
+          "type": "SWITCH",
+          "expression": "tasks['think']['output']['done']",
+          "decisionCases": {
+            "False": [
+              {
+                "name": "execute_tool",
+                "taskReferenceName": "tool_call",
+                "type": "CALL_MCP_TOOL",
+                "input": {
+                  "tool": "$(tasks['think']['output']['action'])",
+                  "arguments": "$(tasks['think']['output']['arguments'])"
+                }
+              }
+            ],
+            "True": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "summarize",
+      "taskReferenceName": "summarize",
+      "type": "SIMPLE",
+      "input": {}
+    }
+  ],
+  "outputParameters": {
+    "answer": "tasks['think']['output']['answer']"
+  }
+}

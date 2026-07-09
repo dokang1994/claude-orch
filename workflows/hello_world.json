@@ -1,0 +1,12 @@
+{
+  "name": "hello_world",
+  "version": 1,
+  "description": "Warm-up: two SIMPLE tasks running in sequence. No LLM, no control flow.",
+  "tasks": [
+    {"name": "greet", "taskReferenceName": "greet", "type": "SIMPLE", "input": {}},
+    {"name": "farewell", "taskReferenceName": "farewell", "type": "SIMPLE", "input": {}}
+  ],
+  "outputParameters": {
+    "greeting": "tasks['greet']['output']['message']"
+  }
+}

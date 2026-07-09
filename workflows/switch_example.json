@@ -1,0 +1,27 @@
+{
+  "name": "pricing_switch_demo",
+  "version": 1,
+  "description": "SWITCH example: route to a pricing handler based on input.userTier.",
+  "tasks": [
+    {
+      "name": "route_by_tier",
+      "taskReferenceName": "route_by_tier",
+      "type": "SWITCH",
+      "expression": "input['userTier']",
+      "decisionCases": {
+        "gold": [
+          {"name": "apply_gold_discount", "taskReferenceName": "apply_gold_discount", "type": "SIMPLE", "input": {}}
+        ],
+        "silver": [
+          {"name": "apply_silver_discount", "taskReferenceName": "apply_silver_discount", "type": "SIMPLE", "input": {}}
+        ]
+      },
+      "defaultCase": [
+        {"name": "apply_standard_pricing", "taskReferenceName": "apply_standard_pricing", "type": "SIMPLE", "input": {}}
+      ]
+    }
+  ],
+  "outputParameters": {
+    "decision": "tasks['route_by_tier']['output']"
+  }
+}
