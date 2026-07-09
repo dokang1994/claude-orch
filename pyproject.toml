@@ -12,6 +12,10 @@ dependencies = []
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.40"]
 dev = ["pytest>=8"]
+# E2E-only: drives the read-only web UI (webui.py) in a real browser.
+# After installing, run `playwright install chromium` once to fetch the
+# browser binary (cached machine-wide, not per project).
+test = ["pytest>=8", "playwright>=1.40", "pytest-playwright>=0.4"]
 
 [project.scripts]
 orchestrator = "orchestrator.cli:main"

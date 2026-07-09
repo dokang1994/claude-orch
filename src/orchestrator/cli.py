@@ -109,6 +109,12 @@ def cmd_demo(args) -> None:
     cmd_status(args)
 
 
+def cmd_serve(args) -> None:
+    from . import webui
+
+    webui.serve(db_path=args.db, port=args.port)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="orchestrator", description="Toy durable workflow/agent orchestration engine for practice."
@@ -140,6 +146,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("demo", help="register bundled workflows and run the think-act-observe demo end to end")
     p.set_defaults(func=cmd_demo)
+
+    p = sub.add_parser("serve", help="serve a minimal read-only web UI over the executions/tasks tables")
+    p.add_argument("--port", type=int, default=8765)
+    p.set_defaults(func=cmd_serve)
 
     return parser
 

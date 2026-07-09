@@ -26,6 +26,7 @@ Operating notes for Claude Code in this repository.
 - Run: `python -m unittest discover -s tests` from the repo root. Stdlib only — no install required; tests add `src/` to `sys.path` themselves.
 - Extend `tests/test_engine.py` or `tests/test_bundled_workflows.py` when changing `decider.py` or `engine.py` — that's where the actual orchestration logic lives, and regressions there are easy to introduce silently (e.g. DO_WHILE iteration bookkeeping, FORK_JOIN parallel scheduling).
 - If you add or change a bundled workflow under `workflows/`, add a case to `test_bundled_workflows.py` that runs it to completion.
+- `tests/e2e/webui_e2e_test.py` drives the read-only web UI (`webui.py`) with Playwright. It's deliberately named `*_e2e_test.py` (not `test_*.py`) so `unittest discover` skips it and the core suite stays dependency-free; run it with `pytest tests/e2e` after `pip install -e ".[test]"` and `playwright install chromium`.
 
 ## Local Development
 

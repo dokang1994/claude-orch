@@ -105,13 +105,12 @@ MCP server (stdio or HTTP transport) using an MCP client library instead.
 Live-updating terminal view of an execution's task table (poll `engine.list_tasks` on an
 interval).
 
-### P3-002 — Minimal web UI
-
-A single read-only HTML page (served via `http.server`) showing executions and their task
-DAG state — a tiny step toward Conductor's real UI.
-
 ---
 
 ## Done
 
 _(move finished items here with the date and what test proves it)_
+
+| Date | ID | Task | Verification |
+| --- | --- | --- | --- |
+| 2026-07-09 | P3-002 | Minimal read-only web UI (`webui.py`, `orchestrator serve`) + Playwright E2E tests | `pytest tests/e2e` (3 tests, real Chromium) |

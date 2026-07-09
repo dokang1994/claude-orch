@@ -154,10 +154,31 @@ attribute access. It's a workflow-file sandbox, not a general scripting language
 | `multi_agent_fork_join.json` | `FORK_JOIN` running two "agents" in parallel, then combining results |
 | `think_act_observe.json` | the full think-act-observe agent loop via `DO_WHILE` + `SWITCH` + `CALL_MCP_TOOL` |
 
+## Web UI
+
+A minimal read-only web UI (stdlib `http.server`, no framework) shows executions and their
+task history:
+
+```powershell
+python -m orchestrator.cli serve --port 8765
+```
+
+Then open `http://127.0.0.1:8765/`.
+
 ## Tests
+
+Core suite (stdlib only, no install required):
 
 ```powershell
 python -m unittest discover -s tests
+```
+
+E2E tests drive the web UI above in a real browser via Playwright:
+
+```powershell
+pip install -e ".[test]"
+playwright install chromium   # once per machine; the binary is cached machine-wide
+pytest tests/e2e
 ```
 
 ## Next steps
