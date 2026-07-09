@@ -72,11 +72,47 @@ def diff_for_mode(mode: str, base: str | None) -> str:
     if mode == "working":
         staged = run_git(["diff", "--cached", "--unified=80"])
         unstaged = run_git(["diff", "--unified=80"])
-        return "\n".join(part for part in (staged, unstaged) if part.strip())
+        untracked = diff_untracked_files()
+        return "\n".join(part for part in (staged, unstaged, untracked) if part.strip())
     if mode == "branch":
         base_ref = base or default_branch_ref()
         return run_git(["diff", f"{base_ref}...HEAD", "--unified=80"])
     raise ValueError(f"Unsupported mode: {mode}")
+
+
+def diff_untracked_files() -> str:
+    out = run_git(["ls-files", "--others", "--exclude-standard"])
+    paths = [line.strip() for line in out.splitlines() if line.strip()]
+    hunks: list[str] = []
+    for raw_path in paths:
+        path = Path(raw_path)
+        if not path.is_file():
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            hunks.append(
+                f"diff --git a/{raw_path} b/{raw_path}\n"
+                "new file mode 100644\n"
+                "--- /dev/null\n"
+                f"+++ b/{raw_path}\n"
+                "@@ -0,0 +1 @@\n"
+                "+[binary or non-UTF-8 file omitted from AI review]\n"
+            )
+            continue
+        lines = content.splitlines()
+        hunk = [
+            f"diff --git a/{raw_path} b/{raw_path}",
+            "new file mode 100644",
+            "--- /dev/null",
+            f"+++ b/{raw_path}",
+            f"@@ -0,0 +1,{len(lines)} @@",
+        ]
+        hunk.extend(f"+{line}" for line in lines)
+        if content.endswith("\n"):
+            hunk.append("")
+        hunks.append("\n".join(hunk))
+    return "\n".join(hunks)
 
 
 def read_diff(args: argparse.Namespace) -> str:

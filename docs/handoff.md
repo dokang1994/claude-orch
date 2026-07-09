@@ -108,3 +108,29 @@ Risks or unfinished work:
 Next recommended work:
 
 - Use the helper before committing meaningful behavior changes
+
+## 2026-07-09 - AI Review Follow-up Fixes
+
+Changed:
+
+- Allowed PR checkout to work for forked pull requests
+- Included untracked UTF-8 files in manual working-mode AI review
+
+Important files:
+
+- .github/workflows/ai-review.yml
+- scripts/ai_review.py
+- docs/handoff.md
+
+Verification:
+
+- python -m py_compile scripts\\ai_review.py scripts\\check_handoff.py scripts\\update_handoff.py
+- python -m unittest discover -s tests
+
+Risks or unfinished work:
+
+- None recorded
+
+Next recommended work:
+
+- Validate GitHub Actions AI review with a real pull request
