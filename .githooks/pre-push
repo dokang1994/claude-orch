@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -u
+
+strict="$(git config --bool aiReview.strict || true)"
+
+echo "Running AI review for branch diff before push..."
+python scripts/ai_review.py --mode branch --allow-empty
+status=$?
+
+if [ "$status" -ne 0 ]; then
+  echo "AI review did not complete."
+  if [ "$strict" = "true" ]; then
+    echo "Push blocked because aiReview.strict=true."
+    exit "$status"
+  fi
+  echo "Continuing push because strict mode is disabled."
+fi
+
+exit 0

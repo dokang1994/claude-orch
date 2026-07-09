@@ -1,0 +1,86 @@
+name: AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    env:
+      HAS_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
+
+    steps:
+      - name: Checkout trusted reviewer
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          path: reviewer
+
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          path: pr
+
+      - name: Build PR diff
+        working-directory: pr
+        run: |
+          git diff --unified=80 "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" > ../pr.diff
+
+      - name: Run AI review
+        if: ${{ env.HAS_OPENAI_API_KEY == 'true' }}
+        working-directory: reviewer
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1' }}
+          AI_REVIEW_PROVIDER: openai
+        run: |
+          if ! python scripts/ai_review.py --diff-file ../pr.diff --output ../ai-review.md --allow-empty; then
+            cat > ../ai-review.md <<'EOF'
+          AI review failed while processing this PR.
+
+          Check the workflow logs for the provider error, then rerun the workflow after fixing the configuration or transient API issue.
+          EOF
+          fi
+
+      - name: Write missing-secret notice
+        if: ${{ env.HAS_OPENAI_API_KEY != 'true' }}
+        run: |
+          cat > ai-review.md <<'EOF'
+          AI review was skipped because `OPENAI_API_KEY` is not configured for this repository.
+
+          Add it in GitHub: Settings -> Secrets and variables -> Actions -> New repository secret.
+          EOF
+
+      - name: Comment on PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          marker="<!-- ai-review-comment -->"
+          body="$(mktemp)"
+          {
+            echo "$marker"
+            cat ai-review.md
+          } > "$body"
+
+          comment_id="$(
+            gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+              --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | contains(\"$marker\"))) | .id" \
+              | head -n 1
+          )"
+
+          if [ -n "$comment_id" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/$comment_id" \
+              --method PATCH \
+              --field body="$(cat "$body")"
+          else
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file "$body"
+          fi
