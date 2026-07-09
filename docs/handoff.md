@@ -134,3 +134,27 @@ Risks or unfinished work:
 Next recommended work:
 
 - Validate GitHub Actions AI review with a real pull request
+
+## 2026-07-09 - Fork PR Review Workflow Fix
+
+Changed:
+
+- Replaced PR checkout diff generation with gh pr diff
+- Limited PR comment updates to same-repository pull requests and writes fork results to step summary
+
+Important files:
+
+- .github/workflows/ai-review.yml
+- docs/handoff.md
+
+Verification:
+
+- python -m unittest discover -s tests
+
+Risks or unfinished work:
+
+- None recorded
+
+Next recommended work:
+
+- Validate AI review workflow on an actual same-repository PR and a fork PR

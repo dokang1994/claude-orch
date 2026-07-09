@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HAS_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
+      CAN_COMMENT: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
 
     steps:
       - name: Checkout trusted reviewer
@@ -23,18 +24,11 @@ jobs:
           fetch-depth: 0
           path: reviewer
 
-      - name: Checkout PR code
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-          path: pr
-
       - name: Build PR diff
-        working-directory: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git diff --unified=80 "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" > ../pr.diff
+          gh pr diff "${{ github.event.pull_request.number }}" --patch > pr.diff
 
       - name: Run AI review
         if: ${{ env.HAS_OPENAI_API_KEY == 'true' }}
@@ -62,6 +56,7 @@ jobs:
           EOF
 
       - name: Comment on PR
+        if: ${{ env.CAN_COMMENT == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -85,3 +80,11 @@ jobs:
           else
             gh pr comment "${{ github.event.pull_request.number }}" --body-file "$body"
           fi
+
+      - name: Write review summary for fork PR
+        if: ${{ env.CAN_COMMENT != 'true' }}
+        run: |
+          {
+            echo "## AI Review"
+            cat ai-review.md
+          } >> "$GITHUB_STEP_SUMMARY"
