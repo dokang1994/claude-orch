@@ -2,6 +2,21 @@
 set -u
 
 strict="$(git config --bool aiReview.strict || true)"
+handoff_strict="$(git config --bool handoff.strict || true)"
+
+echo "Checking handoff documentation for meaningful changes..."
+if [ "$handoff_strict" = "false" ]; then
+  python scripts/check_handoff.py --allow-missing
+else
+  python scripts/check_handoff.py
+fi
+handoff_status=$?
+
+if [ "$handoff_status" -ne 0 ]; then
+  echo "Push blocked because handoff documentation is missing."
+  echo "Update CLAUDE.md, tasks.md, or docs/handoff.md, or set handoff.strict=false."
+  exit "$handoff_status"
+fi
 
 echo "Running AI review for branch diff before push..."
 python scripts/ai_review.py --mode branch --allow-empty

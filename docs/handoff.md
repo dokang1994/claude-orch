@@ -32,6 +32,12 @@ Each entry should answer:
 - `docs/handoff.md`: short chronological handoff log for context continuity.
 - Commit messages: summarize the same change set reflected in `tasks.md` and this file.
 
+Automation:
+
+- Use `scripts/update_handoff.py` or `scripts/update-handoff.ps1` to append structured entries.
+- The pre-push hook runs `scripts/check_handoff.py`.
+- Meaningful code/config changes should touch at least one of `CLAUDE.md`, `tasks.md`, or `docs/handoff.md`.
+
 ## 2026-07-09 - AI Review Automation And Project Docs
 
 Changed:
@@ -76,3 +82,29 @@ Next recommended work:
 - Add a short README section linking to `docs/development.md`, `docs/architecture.md`, and
   `docs/handoff.md`.
 - Start P1-001 retry policy when continuing engine behavior work.
+
+## 2026-07-09 - Handoff Automation
+
+Changed:
+
+- Added helper scripts for structured handoff updates
+- Added pre-push handoff documentation check
+
+Important files:
+
+- scripts/update_handoff.py
+- scripts/check_handoff.py
+- .githooks/pre-push
+- docs/handoff.md
+
+Verification:
+
+- python scripts\\check_handoff.py --allow-missing
+
+Risks or unfinished work:
+
+- None recorded
+
+Next recommended work:
+
+- Use the helper before committing meaningful behavior changes

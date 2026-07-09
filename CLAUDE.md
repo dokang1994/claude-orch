@@ -44,6 +44,7 @@ Operating notes for Claude Code in this repository.
 - Update handoff documentation before finishing meaningful work:
   - move completed backlog items in `tasks.md` to Done with date and verification;
   - update `docs/handoff.md` with what changed, decisions made, tests run, and next recommended steps;
+  - use `scripts/update_handoff.py` or `scripts/update-handoff.ps1` for structured entries when practical;
   - keep commit messages aligned with the same change summary.
 - Do not commit local runtime state such as `data/orchestrator.db`, virtual environments, build output, browser binaries, or API keys.
 - For Claude-generated changes, run the AI review tooling before pushing when practical.

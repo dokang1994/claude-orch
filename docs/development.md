@@ -106,6 +106,20 @@ Before finishing meaningful work, update:
 - `docs/handoff.md` with what changed, what was verified, and what the next AI session should do first.
 - The commit message with the same high-level change summary.
 
+Use the helper when you want a consistent handoff entry:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/update-handoff.ps1 `
+  -Title "Retry policy" `
+  -Changed "Implemented retryCount for failed tasks" `
+  -Files "src/orchestrator/engine.py" `
+  -Verified "python -m unittest discover -s tests" `
+  -Next "Start P1-003 timeout handling"
+```
+
+The pre-push hook runs `scripts/check_handoff.py` and blocks meaningful code/config changes
+when none of `CLAUDE.md`, `tasks.md`, or `docs/handoff.md` changed.
+
 ## Optional Anthropic Setup
 
 The optional dependency is declared but the real provider is not implemented yet.
