@@ -25,10 +25,11 @@ jobs:
           path: reviewer
 
       - name: Build PR diff
+        working-directory: reviewer
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr diff "${{ github.event.pull_request.number }}" --patch > pr.diff
+          gh pr diff "${{ github.event.pull_request.number }}" --patch > ../pr.diff
 
       - name: Run AI review
         if: ${{ env.HAS_OPENAI_API_KEY == 'true' }}

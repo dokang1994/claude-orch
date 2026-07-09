@@ -158,3 +158,27 @@ Risks or unfinished work:
 Next recommended work:
 
 - Validate AI review workflow on an actual same-repository PR and a fork PR
+
+## 2026-07-09 - PR Diff Repo Context Fix
+
+Changed:
+
+- Run gh pr diff from the trusted reviewer checkout so GitHub CLI has repository context
+
+Important files:
+
+- .github/workflows/ai-review.yml
+- docs/handoff.md
+
+Verification:
+
+- python scripts\\check_handoff.py
+- python -m unittest discover -s tests
+
+Risks or unfinished work:
+
+- None recorded
+
+Next recommended work:
+
+- Validate AI review workflow in GitHub Actions
